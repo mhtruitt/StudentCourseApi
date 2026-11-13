@@ -1,0 +1,163 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Course Catalog</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 40px 20px;
+            color: #263445;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #203b5c;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #667085;
+            margin-bottom: 30px;
+        }
+
+        .course-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 20px;
+        }
+
+        .course-card {
+            background: white;
+            padding: 22px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            border-left: 5px solid #3975b7;
+        }
+
+        .course-code {
+            color: #3975b7;
+            font-weight: bold;
+        }
+
+        .course-title {
+            font-size: 18px;
+            margin: 12px 0;
+        }
+
+        .credits {
+            color: #667085;
+        }
+
+        #status {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .refresh-button {
+            display: block;
+            margin: 0 auto 25px;
+            padding: 11px 22px;
+            background: #3975b7;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .refresh-button:hover {
+            background: #28598f;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Student Course Catalog</h1>
+
+        <p class="subtitle">
+            Browse available university courses.
+        </p>
+
+        <button class="refresh-button" onclick="loadCourses()">
+            Refresh Courses
+        </button>
+
+        <p id="status">Loading courses...</p>
+
+        <div id="courseList" class="course-list"></div>
+
+    </div>
+
+    <script>
+        async function loadCourses() {
+
+            const courseList = document.getElementById("courseList");
+            const status = document.getElementById("status");
+
+            status.textContent = "Loading courses...";
+            courseList.innerHTML = "";
+
+            try {
+
+                const response = await fetch("/api/courses");
+
+                if (!response.ok) {
+                    throw new Error("Unable to retrieve courses.");
+                }
+
+                const courses = await response.json();
+
+                status.textContent =
+                    `Showing ${courses.length} courses`;
+
+                courses.forEach(course => {
+
+                    const card = document.createElement("div");
+                    card.className = "course-card";
+
+                    const code = document.createElement("div");
+                    code.className = "course-code";
+                    code.textContent = course.code;
+
+                    const title = document.createElement("h2");
+                    title.className = "course-title";
+                    title.textContent = course.title;
+
+                    const credits = document.createElement("p");
+                    credits.className = "credits";
+                    credits.textContent = `${course.credits} Credits`;
+
+                    card.append(code, title, credits);
+                    courseList.appendChild(card);
+
+                });
+
+            } catch (error) {
+
+                status.textContent = error.message;
+
+            }
+        }
+
+        loadCourses();
+    </script>
+
+</body>
+</html>
